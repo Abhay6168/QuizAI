@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "3cmd1vg83",
+    "id": "d2py9abs5",
+    "createdAt": "2026-07-01T05:34:06.143Z",
+    "name": "Abhay Patil",
+    "email": "abhayspatil.4905@gmail.com",
+    "password": "$2a$10$6Z04SWpgJn6YOiomM0EDCOtsWJEqQVAnXk/yjiyYS.GkSj80RWzNy",
+    "role": "teacher",
+    "institution": "College"
+  }
+]

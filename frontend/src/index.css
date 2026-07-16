@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Premium Linear/Stripe Glassmorphism Utilities */
+  .glass-card {
+    background: rgba(20, 20, 28, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(30, 30, 45, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .glass-input {
+    background: rgba(10, 10, 15, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .glass-input:focus {
+    border-color: rgba(45, 212, 191, 0.5);
+    box-shadow: 0 0 15px rgba(45, 212, 191, 0.15);
+    outline: none;
+  }
+
+  /* Radial glowing elements */
+  .neon-glow-mint {
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.25);
+  }
+
+  .neon-glow-blue {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+  }
+
+  /* Custom radial ambient backdrops */
+  .bg-ambient-radial {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 107, 139, 0.08) 0%, rgba(255, 244, 184, 0.04) 50%, rgba(15, 15, 19, 0) 100%);
+  }
+}
+
+/* Wero aesthetic linear background colors */
+.bg-wero-gradient {
+  background: linear-gradient(135deg, #ff8da1 0%, #ff6b8b 35%, #fff2a3 100%);
+}
+
+.bg-wero-gradient-light {
+  background: linear-gradient(135deg, rgba(255, 141, 161, 0.15) 0%, rgba(255, 107, 139, 0.15) 35%, rgba(255, 242, 163, 0.1) 100%);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f0f13;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
