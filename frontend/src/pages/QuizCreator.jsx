@@ -4,7 +4,7 @@ import {
   Upload, CheckSquare, Layers, Clock, AlertTriangle, ShieldCheck
 } from 'lucide-react';
 
-const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }) => {
+const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit, theme, setTheme, isDark }) => {
   const [activeTab, setActiveTab] = useState(quizToEdit ? 'manual' : 'ai'); // 'ai' or 'manual'
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -168,7 +168,6 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
     try {
       let response;
       if (quizToEdit) {
-        // Edit Mode: PUT request
         response = await fetch(`http://localhost:5000/api/quizzes/${quizToEdit._id}`, {
           method: 'PUT',
           headers: {
@@ -178,7 +177,6 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
           body: JSON.stringify(bodyData)
         });
       } else {
-        // Create Mode: POST request
         response = await fetch('http://localhost:5000/api/quizzes', {
           method: 'POST',
           headers: {
@@ -203,12 +201,61 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
     }
   };
 
+  // Dynamic Theme properties
+  const bgClass = isDark ? 'bg-[#0a0a0f] text-slate-100' : 'text-[#1d1c1c]';
+  const bgStyle = !isDark ? { background: 'linear-gradient(135deg, #FFFDE8 0%, #FFF5CC 50%, #FFE899 100%)' } : {};
+  
+  const headerBtnClass = isDark 
+    ? 'p-3 rounded-xl hover:bg-white/5 border border-white/5 transition flex items-center gap-2 text-xs text-slate-400 hover:text-white' 
+    : 'p-3 rounded-xl border-2 border-black bg-white text-black shadow-[3px_3px_0_#000] hover:bg-slate-50 transition flex items-center gap-2 text-xs font-bold';
+
+  const tabOuterClass = isDark
+    ? 'bg-[#14121b] border border-white/5 rounded-full p-1.5 flex items-center gap-1 shadow-lg'
+    : 'bg-white border-2 border-black rounded-full p-1.5 flex items-center gap-1 shadow-[4px_4px_0_#000]';
+
+  const cardClass = isDark
+    ? 'bg-[#14121b] border border-white/5 p-8 rounded-3xl space-y-4'
+    : 'bg-white border-2 border-black p-8 rounded-3xl space-y-4 shadow-[6px_6px_0px_#1d1c1c] text-[#1d1c1c]';
+
+  const inputClass = isDark
+    ? 'w-full py-2.5 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold outline-none focus:border-[#86EF6A] text-xs'
+    : 'w-full py-2.5 px-4 rounded-xl bg-white border-2 border-black text-black font-semibold outline-none focus:border-purple-600 text-xs';
+
+  const labelClass = isDark
+    ? 'block text-xs font-black tracking-wider text-slate-500 uppercase mb-2'
+    : 'block text-xs font-black tracking-wider text-slate-700 uppercase mb-2';
+
+  const selectClass = isDark
+    ? 'w-full py-2.5 px-4 rounded-xl bg-black/40 border border-white/10 text-white font-bold appearance-none cursor-pointer outline-none text-xs'
+    : 'w-full py-2.5 px-4 rounded-xl bg-white border-2 border-black text-black font-semibold appearance-none cursor-pointer outline-none text-xs';
+
+  const primaryBtnClass = isDark
+    ? 'w-full py-4 rounded-2xl bg-slate-100 hover:bg-white text-slate-900 font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg'
+    : 'w-full py-4 rounded-2xl bg-[#86EF6A] hover:bg-[#A8F08D] text-black border-2 border-black font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-[4px_4px_0_#000]';
+
+  const toggleSelectBtn = (l) => {
+    const isSelected = difficulty === l;
+    if (isDark) {
+      return isSelected 
+        ? 'py-2 rounded-xl text-xs font-bold transition capitalize bg-slate-100 text-slate-900 shadow-md font-extrabold'
+        : 'py-2 rounded-xl text-xs font-bold transition capitalize bg-white/5 border border-white/5 text-slate-400 hover:bg-white/10';
+    } else {
+      return isSelected
+        ? 'py-2 rounded-xl text-xs font-black transition capitalize bg-[#ECEA8C] border-2 border-black text-black shadow-[2px_2px_0_#000]'
+        : 'py-2 rounded-xl text-xs font-bold transition capitalize bg-white border-2 border-black text-slate-600 hover:bg-slate-50';
+    }
+  };
+
   return (
-    <div className="relative min-h-screen bg-[#08080b] text-slate-100 p-8 select-none">
+    <div className={`relative min-h-screen p-8 transition-all duration-500 overflow-x-hidden ${bgClass}`} style={bgStyle}>
       
-      {/* GLOWS */}
-      <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-wero-pink/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-wero-blue/5 blur-[120px] pointer-events-none" />
+      {/* GLOWS (Dark Theme Only) */}
+      {isDark && (
+        <>
+          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-wero-pink/5 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-wero-blue/5 blur-[120px] pointer-events-none" />
+        </>
+      )}
 
       {/* HEADER */}
       <header className="flex justify-between items-center mb-10 relative z-10">
@@ -217,33 +264,65 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
             if (onClearEdit) onClearEdit();
             setPage('teacher-dashboard');
           }}
-          className="p-3 rounded-xl hover:bg-white/5 border border-white/5 transition flex items-center gap-2 text-xs text-slate-400 hover:text-white"
+          className={headerBtnClass}
         >
           <ArrowLeft className="w-4 h-4" /> Dashboard
         </button>
-        <span className="text-xs font-black tracking-widest text-slate-500 uppercase">Quiz Creator Studio</span>
+
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* LGT / DRK toggler pill */}
+          <div className={`border-2 rounded-full p-1.5 flex items-center gap-1.5 transition-all duration-300 ${
+            isDark ? 'bg-[#14121b] border-white shadow-[0_4px_0_#FFF]' : 'bg-white border-black shadow-[0_4px_0_#000]'
+          }`}>
+            <button 
+              onClick={() => setTheme('light')}
+              className={`px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all duration-200 ${
+                theme === 'light' 
+                  ? 'bg-[#ECEA8C] border border-black text-[#1d1c1c] shadow-[1px_1px_0_#000]' 
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              LGT
+            </button>
+            <button 
+              onClick={() => setTheme('dark')}
+              className={`px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all duration-200 ${
+                theme === 'dark' 
+                  ? 'bg-purple-600 border border-white/20 text-white shadow-[1px_1px_0_#fff]' 
+                  : 'text-slate-400 hover:text-slate-300'
+              }`}
+            >
+              DRK
+            </button>
+          </div>
+          <span className={`text-xs font-black tracking-widest uppercase ${isDark ? 'text-slate-500' : 'text-slate-700'}`}>Quiz Creator Studio</span>
+        </div>
       </header>
 
       {/* MODE TABS SELECTOR */}
       <div className="flex justify-center mb-12 relative z-10">
-        <div className="glass-card border border-white/5 rounded-full p-1.5 flex items-center gap-1 shadow-lg">
+        <div className={tabOuterClass}>
           <button
             onClick={() => setActiveTab('ai')}
             className={`px-8 py-3 rounded-full text-xs font-black tracking-wider transition-all flex items-center gap-2 ${
               activeTab === 'ai' 
-                ? 'bg-slate-100 text-slate-900 shadow-md' 
-                : 'text-slate-400 hover:bg-white/5'
+                ? isDark 
+                  ? 'bg-slate-100 text-slate-900 shadow-md font-extrabold' 
+                  : 'bg-[#86EF6A] border-2 border-black text-black shadow-[2px_2px_0_#000] font-extrabold'
+                : isDark ? 'text-slate-400 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-100/50'
             }`}
           >
-            <Sparkles className={`w-4 h-4 ${activeTab === 'ai' ? 'text-wero-pink fill-wero-pink' : 'text-slate-400'}`} />
+            <Sparkles className={`w-4 h-4 ${activeTab === 'ai' ? 'text-wero-pink fill-wero-pink animate-pulse' : 'text-slate-400'}`} />
             <span>AI GENERATION</span>
           </button>
           <button
             onClick={() => setActiveTab('manual')}
             className={`px-8 py-3 rounded-full text-xs font-black tracking-wider transition-all flex items-center gap-2 ${
               activeTab === 'manual' 
-                ? 'bg-slate-100 text-slate-900 shadow-md' 
-                : 'text-slate-400 hover:bg-white/5'
+                ? isDark 
+                  ? 'bg-slate-100 text-slate-900 shadow-md font-extrabold'
+                  : 'bg-[#86EF6A] border-2 border-black text-black shadow-[2px_2px_0_#000] font-extrabold'
+                : isDark ? 'text-slate-400 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-100/50'
             }`}
           >
             <CheckSquare className="w-4 h-4" />
@@ -257,27 +336,27 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
         <section className="max-w-3xl mx-auto relative z-10">
           {loading ? (
             /* LOADING BLOCK */
-            <div className="glass-card p-12 rounded-3xl border border-white/5 text-center shadow-2xl min-h-[350px] flex flex-col justify-center items-center">
+            <div className={`${cardClass} p-12 text-center min-h-[350px] flex flex-col justify-center items-center`}>
               <div className="w-16 h-16 rounded-2xl bg-wero-pink/10 border border-wero-pink/20 flex items-center justify-center text-wero-pink mb-8 animate-spin">
                 <Sparkles className="w-8 h-8 fill-wero-pink" />
               </div>
-              <h2 className="text-2xl font-black font-sans tracking-tight text-white mb-2">Analyzing Document Pipeline</h2>
-              <p className="text-sm text-slate-400 mb-8 max-w-sm">Extracting key topics, mapping questions schemas, and formatting answers with Gemini AI...</p>
+              <h2 className="text-2xl font-black tracking-tight mb-2">Analyzing Document Pipeline</h2>
+              <p className={`text-sm mb-8 max-w-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Extracting key topics, mapping questions schemas, and formatting answers with Gemini AI...</p>
               
-              <div className="w-full max-w-md bg-white/5 border border-white/5 rounded-full h-3 overflow-hidden">
+              <div className={`w-full max-w-md rounded-full h-3 overflow-hidden border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-200 border-black/10'}`}>
                 <div 
-                  className="bg-wero-pink h-full rounded-full transition-all duration-300"
+                  className="bg-wero-pink h-full rounded-full transition-all duration-300 animate-pulse"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-[10px] font-black text-slate-500 tracking-widest uppercase mt-3">{progress}% PIPELINE INDEXED</span>
+              <span className={`text-[10px] font-black tracking-widest uppercase mt-3 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>{progress}% PIPELINE INDEXED</span>
             </div>
           ) : (
             /* FORM UPLOAD BLOCK */
             <form onSubmit={handleAIGenerate} className="space-y-8">
               
               {/* UPLOAD FILE CONTAINER */}
-              <div className="glass-card p-10 rounded-3xl border border-white/5 hover:border-white/10 transition-all text-center relative group">
+              <div className={`${cardClass} p-10 text-center relative group`}>
                 <input
                   type="file"
                   id="doc-upload"
@@ -286,13 +365,17 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
                 <div className="flex flex-col items-center justify-center">
-                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 mb-4 group-hover:scale-105 transition group-hover:text-wero-pink group-hover:bg-wero-pink/5">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${
+                    isDark 
+                      ? 'bg-white/5 border border-white/5 text-slate-400 group-hover:scale-105 group-hover:text-wero-pink group-hover:bg-wero-pink/5' 
+                      : 'bg-slate-100 border-2 border-black text-black shadow-[2px_2px_0_#000] group-hover:bg-purple-100 group-hover:scale-105'
+                  }`}>
                     <Upload className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-1.5">
+                  <h3 className="text-lg font-bold mb-1.5">
                     {file ? file.name : 'Upload Lecture Materials'}
                   </h3>
-                  <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                  <p className={`text-xs max-w-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Drag & drop your files here or browse. Supports PDFs, PPTx, DOCx, or plain notes (Max 10MB)
                   </p>
                 </div>
@@ -300,33 +383,31 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
 
               {/* OR TEXT AREA */}
               <div className="flex flex-col">
-                <label className="text-xs font-black tracking-wider text-slate-400 uppercase mb-2">Or Paste Custom Notes</label>
+                <label className={labelClass}>Or Paste Custom Notes</label>
                 <textarea
                   rows={4}
                   placeholder="Paste study guides, lesson summaries, or definitions here..."
                   value={rawText}
                   onChange={(e) => setRawText(e.target.value)}
-                  className="w-full p-4 rounded-2xl glass-input text-xs text-white font-medium"
+                  className={inputClass}
                 />
               </div>
 
               {/* TUNING ACCENT PIPELINE CONFIGS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/[0.01] border border-white/5 p-6 rounded-2xl">
+              <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl border ${
+                isDark ? 'bg-white/[0.01] border-white/5' : 'bg-white border-2 border-black shadow-[4px_4px_0_#000]'
+              }`}>
                 
                 {/* 1. DIFFICULTY */}
                 <div>
-                  <label className="block text-xs font-black tracking-wider text-slate-400 uppercase mb-2">Tuning Difficulty</label>
+                  <label className={labelClass}>Tuning Difficulty</label>
                   <div className="grid grid-cols-3 gap-2">
                     {['easy', 'medium', 'hard'].map((l) => (
                       <button
                         key={l}
                         type="button"
                         onClick={() => setDifficulty(l)}
-                        className={`py-2 rounded-xl text-xs font-bold transition capitalize ${
-                          difficulty === l 
-                            ? 'bg-slate-100 text-slate-900 shadow-md font-extrabold' 
-                            : 'bg-white/5 border border-white/5 text-slate-400 hover:bg-white/10'
-                        }`}
+                        className={toggleSelectBtn(l)}
                       >
                         {l}
                       </button>
@@ -336,54 +417,57 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
 
                 {/* 2. QUESTION COUNT */}
                 <div>
-                  <label className="block text-xs font-black tracking-wider text-slate-400 uppercase mb-2">Questions Count</label>
-                  <select
-                    value={count}
-                    onChange={(e) => setCount(e.target.value)}
-                    className="w-full py-2.5 px-4 rounded-xl glass-input text-xs text-white font-bold appearance-none cursor-pointer"
-                  >
-                    {[5, 10, 20, 50].map(c => (
-                      <option key={c} value={c} className="bg-[#0f0f13] text-white">{c} Questions</option>
-                    ))}
-                  </select>
+                  <label className={labelClass}>Questions Count</label>
+                  <div className="relative">
+                    <select
+                      value={count}
+                      onChange={(e) => setCount(e.target.value)}
+                      className={selectClass}
+                    >
+                      {[5, 10, 20, 50].map(c => (
+                        <option key={c} value={c} className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>{c} Questions</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* 3. QUESTION TYPES */}
                 <div>
-                  <label className="block text-xs font-black tracking-wider text-slate-400 uppercase mb-2">Type Distribution</label>
-                  <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    className="w-full py-2.5 px-4 rounded-xl glass-input text-xs text-white font-bold appearance-none cursor-pointer"
-                  >
-                    <option value="mixed" className="bg-[#0f0f13] text-white">Mixed (MCQs & T/F)</option>
-                    <option value="mcq" className="bg-[#0f0f13] text-white">MCQs Only (4 Options)</option>
-                    <option value="tf" className="bg-[#0f0f13] text-white">True / False Only</option>
-                  </select>
+                  <label className={labelClass}>Type Distribution</label>
+                  <div className="relative">
+                    <select
+                      value={type}
+                      onChange={(e) => setType(e.target.value)}
+                      className={selectClass}
+                    >
+                      <option value="mixed" className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>Mixed (MCQs & T/F)</option>
+                      <option value="mcq" className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>MCQs Only (4 Options)</option>
+                      <option value="tf" className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>True / False Only</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* 4. LANGUAGE */}
                 <div>
-                  <label className="block text-xs font-black tracking-wider text-slate-400 uppercase mb-2">Output Translation</label>
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full py-2.5 px-4 rounded-xl glass-input text-xs text-white font-bold appearance-none cursor-pointer"
-                  >
-                    <option value="English" className="bg-[#0f0f13] text-white">English (Primary)</option>
-                    <option value="Hindi" className="bg-[#0f0f13] text-white">Hindi (हिन्दी)</option>
-                    <option value="Marathi" className="bg-[#0f0f13] text-white">Marathi (मराठी)</option>
-                  </select>
+                  <label className={labelClass}>Output Translation</label>
+                  <div className="relative">
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className={selectClass}
+                    >
+                      <option value="English" className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>English (Primary)</option>
+                      <option value="Hindi" className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>Hindi (हिन्दी)</option>
+                      <option value="Marathi" className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>Marathi (मराठी)</option>
+                    </select>
+                  </div>
                 </div>
 
               </div>
 
               {/* GENERATE SUBMIT ACTION */}
-              <button
-                type="submit"
-                className="w-full py-4 rounded-2xl bg-slate-100 hover:bg-white text-slate-900 font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg"
-              >
-                <Sparkles className="w-4 h-4 text-wero-pink fill-wero-pink" />
+              <button type="submit" className={primaryBtnClass}>
+                <Sparkles className="w-4 h-4 fill-current animate-pulse" />
                 <span>GENERATE INTELLIGENT QUIZ CARDS</span>
               </button>
 
@@ -398,35 +482,35 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
           <form onSubmit={handleManualSave} className="space-y-8">
             
             {/* QUIZ GENERAL INFORMATION CARD */}
-            <div className="glass-card p-8 rounded-3xl border border-white/5 space-y-4">
-              <h3 className="text-sm font-black tracking-widest text-slate-400 uppercase flex items-center gap-2">
+            <div className={cardClass}>
+              <h3 className="text-sm font-black tracking-widest uppercase flex items-center gap-2">
                 <FileText className="w-4 h-4 text-wero-pink" /> Core Quiz Metadata
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-black tracking-wider text-slate-500 uppercase mb-2">Quiz Title</label>
+                  <label className={labelClass}>Quiz Title</label>
                   <input
                     type="text"
                     placeholder="e.g. Advanced Calculus Unit 1"
                     value={quizTitle}
                     onChange={(e) => setQuizTitle(e.target.value)}
-                    className="w-full py-3 px-4 rounded-xl glass-input text-sm text-white font-bold"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black tracking-wider text-slate-500 uppercase mb-2">Penalty / Negative marking</label>
+                  <label className={labelClass}>Penalty / Negative marking</label>
                   <div className="flex items-center gap-3 py-3">
                     <input
                       type="checkbox"
                       id="neg-marking"
                       checked={settings.negativeMarking}
                       onChange={(e) => setSettings({ ...settings, negativeMarking: e.target.checked })}
-                      className="w-5 h-5 rounded accent-wero-pink cursor-pointer bg-[#0f0f13]"
+                      className={`w-5 h-5 rounded cursor-pointer ${isDark ? 'accent-wero-pink bg-[#0f0f13]' : 'accent-purple-600'}`}
                     />
-                    <label htmlFor="neg-marking" className="text-xs text-slate-400 font-bold select-none cursor-pointer flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5 text-wero-pink animate-pulse" />
+                    <label htmlFor="neg-marking" className={`text-xs font-bold select-none cursor-pointer flex items-center gap-1 ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
+                      <AlertTriangle className="w-3.5 h-3.5 text-wero-pink" />
                       <span>-25 points on wrong answers</span>
                     </label>
                   </div>
@@ -434,48 +518,58 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
               </div>
 
               <div>
-                <label className="block text-xs font-black tracking-wider text-slate-500 uppercase mb-2">Description</label>
+                <label className={labelClass}>Description</label>
                 <input
                   type="text"
                   placeholder="Explain what skills or topics this quiz is designed to test..."
                   value={quizDesc}
                   onChange={(e) => setQuizDesc(e.target.value)}
-                  className="w-full py-3 px-4 rounded-xl glass-input text-xs text-white font-medium"
+                  className={inputClass}
                 />
               </div>
             </div>
 
             {/* QUESTIONS BUILDER CARDS GRID */}
             <div className="space-y-6">
-              <h3 className="text-sm font-black tracking-widest text-slate-400 uppercase flex items-center gap-2">
+              <h3 className={`text-sm font-black tracking-widest uppercase flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                 <Layers className="w-4 h-4 text-wero-blue" /> Questions Stack ({manualQuestions.length})
               </h3>
 
               {manualQuestions.map((q, idx) => (
-                <div key={idx} className="glass-card p-8 rounded-3xl border border-white/5 relative space-y-5">
+                <div key={idx} className={cardClass}>
                   
                   {/* Delete Badge */}
                   <button
                     type="button"
                     onClick={() => removeQuestion(idx)}
-                    className="absolute top-6 right-6 p-2 rounded-xl bg-red-950/15 border border-red-500/10 hover:bg-red-950/30 text-red-400 transition"
+                    className={`absolute top-6 right-6 p-2 rounded-xl transition ${
+                      isDark 
+                        ? 'bg-red-950/15 border border-red-500/10 hover:bg-red-950/30 text-red-400' 
+                        : 'bg-red-50 border-2 border-red-500 text-red-500 shadow-[1.5px_1.5px_0_#000] hover:bg-red-100'
+                    }`}
                     title="Remove Question"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
 
                   <div className="flex items-center gap-3">
-                    <span className="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center font-extrabold text-xs text-white">
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center font-extrabold text-xs border ${
+                      isDark ? 'bg-slate-900 border-white/10 text-white' : 'bg-slate-100 border-black text-black'
+                    }`}>
                       {idx + 1}
                     </span>
                     
                     {/* Q Type selector */}
-                    <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-full border border-white/5">
+                    <div className={`flex items-center gap-1.5 p-1 rounded-full border ${
+                      isDark ? 'bg-slate-950 border-white/5' : 'bg-white border-2 border-black shadow-[2px_2px_0_#000]'
+                    }`}>
                       <button
                         type="button"
                         onClick={() => setQuestionType(idx, 'mcq')}
                         className={`px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider transition ${
-                          q.type === 'mcq' ? 'bg-white/10 text-white' : 'text-slate-400'
+                          q.type === 'mcq' 
+                            ? isDark ? 'bg-white/10 text-white' : 'bg-[#ECEA8C] text-black border border-black shadow-[1px_1px_0_#000]' 
+                            : 'text-slate-400'
                         }`}
                       >
                         MCQ (4 Options)
@@ -484,7 +578,9 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
                         type="button"
                         onClick={() => setQuestionType(idx, 'tf')}
                         className={`px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider transition ${
-                          q.type === 'tf' ? 'bg-white/10 text-white' : 'text-slate-400'
+                          q.type === 'tf' 
+                            ? isDark ? 'bg-white/10 text-white' : 'bg-[#ECEA8C] text-black border border-black shadow-[1px_1px_0_#000]'
+                            : 'text-slate-400'
                         }`}
                       >
                         True / False
@@ -494,13 +590,13 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
 
                   {/* QUESTION TEXT */}
                   <div>
-                    <label className="block text-xs font-black tracking-wider text-slate-500 uppercase mb-2">Question String</label>
+                    <label className={labelClass}>Question String</label>
                     <input
                       type="text"
                       placeholder="Write your quiz question here..."
                       value={q.questionText}
                       onChange={(e) => updateQuestionText(idx, e.target.value)}
-                      className="w-full py-3 px-4 rounded-xl glass-input text-xs text-white font-semibold"
+                      className={inputClass}
                     />
                   </div>
 
@@ -517,7 +613,7 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
                             placeholder={`Enter Option ${String.fromCharCode(65 + optIdx)}`}
                             value={opt}
                             onChange={(e) => updateQuestionOption(idx, optIdx, e.target.value)}
-                            className="w-full py-2.5 px-3.5 rounded-xl glass-input text-xs text-white font-medium"
+                            className={inputClass}
                           />
                         </div>
                       ))}
@@ -525,7 +621,9 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
                   ) : (
                     <div className="grid grid-cols-2 gap-4">
                       {q.options.map((opt, optIdx) => (
-                        <div key={optIdx} className="p-3 text-center rounded-xl bg-white/5 border border-white/5 text-xs text-slate-300 font-bold">
+                        <div key={optIdx} className={`p-3 text-center rounded-xl border text-xs font-bold ${
+                          isDark ? 'bg-white/5 border-white/5 text-slate-300' : 'bg-slate-50 border-2 border-black text-black'
+                        }`}>
                           {opt}
                         </div>
                       ))}
@@ -537,26 +635,30 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
                     
                     {/* Correct answer */}
                     <div className="md:col-span-1">
-                      <label className="block text-xs font-black tracking-wider text-slate-500 uppercase mb-2">Correct Target Answer</label>
-                      <select
-                        value={q.correctAnswer}
-                        onChange={(e) => {
-                          const list = [...manualQuestions];
-                          list[idx].correctAnswer = e.target.value;
-                          setManualQuestions(list);
-                        }}
-                        className="w-full py-2.5 px-4 rounded-xl glass-input text-xs text-white font-bold appearance-none cursor-pointer"
-                      >
-                        <option value="">Select Correct Answer</option>
-                        {q.options.map((opt, optIdx) => (
-                          <option key={optIdx} value={opt}>{opt || `Empty Option ${String.fromCharCode(65 + optIdx)}`}</option>
-                        ))}
-                      </select>
+                      <label className={labelClass}>Correct Target Answer</label>
+                      <div className="relative">
+                        <select
+                          value={q.correctAnswer}
+                          onChange={(e) => {
+                            const list = [...manualQuestions];
+                            list[idx].correctAnswer = e.target.value;
+                            setManualQuestions(list);
+                          }}
+                          className={selectClass}
+                        >
+                          <option value="">Select Correct Answer</option>
+                          {q.options.map((opt, optIdx) => (
+                            <option key={optIdx} value={opt} className={isDark ? 'bg-[#0f0f13] text-white' : 'bg-white text-black'}>
+                              {opt || `Empty Option ${String.fromCharCode(65 + optIdx)}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     {/* Explanation */}
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-black tracking-wider text-slate-500 uppercase mb-2">Detailed Solution Explanation</label>
+                      <label className={labelClass}>Detailed Solution Explanation</label>
                       <input
                         type="text"
                         placeholder="Provide details on why this answer is correct..."
@@ -566,7 +668,7 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
                           list[idx].explanation = e.target.value;
                           setManualQuestions(list);
                         }}
-                        className="w-full py-2.5 px-4 rounded-xl glass-input text-xs text-white font-medium"
+                        className={inputClass}
                       />
                     </div>
 
@@ -582,15 +684,16 @@ const QuizCreator = ({ setPage, handleAIQuestionsLoad, quizToEdit, onClearEdit }
               <button
                 type="button"
                 onClick={addQuestion}
-                className="py-3 px-6 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs tracking-wider uppercase transition flex items-center gap-2"
+                className={`py-3 px-6 rounded-xl border font-bold text-xs tracking-wider uppercase transition flex items-center gap-2 ${
+                  isDark
+                    ? 'bg-white/5 border-white/5 hover:bg-white/10 text-white'
+                    : 'bg-white border-2 border-black text-black shadow-[3px_3px_0_#000] hover:bg-slate-50'
+                }`}
               >
                 <Plus className="w-4 h-4 text-wero-blue" /> Add Question Card
               </button>
 
-              <button
-                type="submit"
-                className="flex-1 py-4 rounded-xl bg-slate-100 hover:bg-white text-slate-900 font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg"
-              >
+              <button type="submit" className={primaryBtnClass}>
                 <ShieldCheck className="w-4 h-4 text-wero-mint" />
                 <span>SAVE QUIZ SYLLABUS</span>
               </button>

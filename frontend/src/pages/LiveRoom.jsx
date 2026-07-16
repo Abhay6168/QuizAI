@@ -11,7 +11,8 @@ const LiveRoom = ({
   socketFinishedResults, setSocketFinishedResults, handleSimulateMockStart,
   socketNextQuestion, socketPauseQuiz, socketResumeQuiz, socketEndQuiz,
   serverTimer, timerPaused, showRoundFeedback,
-  answersReceived, roundStats
+  answersReceived, roundStats,
+  theme, setTheme, isDark
 }) => {
   const [gameState, setGameState] = useState('waiting'); // 'waiting' | 'countdown' | 'question' | 'timeout' | 'finished'
   const [counter, setCounter] = useState(3);
@@ -20,28 +21,12 @@ const LiveRoom = ({
   // Helper to check if room is in offline mock simulation or online socket mode
   const isMockRoom = !roomCode || roomCode.includes('-');
 
-  // Initialize offline simulation if socket server is offline or solo test is requested
+  // Initialize room code if not present
   useEffect(() => {
     if (!roomCode) {
-      // Generate a mock code
-      const mockCode = 'AI-' + Math.floor(1000 + Math.random() * 9000);
+      const mockCode = 'AI' + Math.floor(1000 + Math.random() * 9000);
       setRoomCode(mockCode);
-      
-      // Seed default solo lobby students
-      const defaultLobby = [
-        { username: 'Alex_AI', score: 0 },
-        { username: 'Sarah_Pro', score: 0 },
-        { username: 'Dexter_99', score: 0 }
-      ];
-      setLobbyParticipants(defaultLobby);
-      
-      // Auto register more mock joins to build classroom hype
-      setTimeout(() => {
-        setLobbyParticipants(prev => [...prev, { username: 'CuriousGeorge', score: 0 }]);
-      }, 1500);
-      setTimeout(() => {
-        setLobbyParticipants(prev => [...prev, { username: 'Einstein_2.0', score: 0 }]);
-      }, 3000);
+      setLobbyParticipants([]);
     }
   }, [roomCode]);
 
@@ -182,23 +167,85 @@ const LiveRoom = ({
     }
   };
 
+  // Dynamic Theme properties
+  const bgClass = isDark ? 'bg-[#0a0a0f] text-slate-100' : 'text-[#1d1c1c]';
+  const bgStyle = !isDark ? { background: 'linear-gradient(135deg, #FFFDE8 0%, #FFF5CC 50%, #FFE899 100%)' } : {};
+  
+  const headerLogoClass = isDark
+    ? 'w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center font-black text-sm text-white'
+    : 'w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center font-black text-sm text-black shadow-[2px_2px_0px_#000]';
+
+  const cardClass = isDark
+    ? 'bg-[#14121b] border border-white/5 p-8 rounded-3xl space-y-4'
+    : 'bg-white border-2 border-black p-8 rounded-3xl space-y-4 shadow-[6px_6px_0px_#1d1c1c] text-[#1d1c1c]';
+
+  const inviteLinkClass = isDark
+    ? 'p-4 rounded-xl border border-white/5 bg-white/[0.01] flex items-center justify-between gap-4 flex-wrap'
+    : 'p-4 rounded-xl border-2 border-black bg-white flex items-center justify-between gap-4 flex-wrap shadow-[3px_3px_0px_#000] text-black';
+
+  const inviteCopyBtnClass = isDark
+    ? 'py-1.5 px-3 rounded-lg bg-slate-900 text-[10px] font-black uppercase text-white tracking-wider border border-white/10 hover:bg-slate-800'
+    : 'py-1.5 px-3 rounded-lg bg-slate-100 text-[10px] font-black uppercase text-black tracking-wider border-2 border-black hover:bg-slate-200 shadow-[2px_2px_0px_#000]';
+
+  const playerPillClass = isDark
+    ? 'p-3 rounded-xl border border-white/5 bg-white/[0.01] text-xs font-bold text-slate-200 flex items-center gap-2'
+    : 'p-3 rounded-xl border-2 border-black bg-white text-xs font-extrabold text-[#1d1c1c] flex items-center gap-2 shadow-[2px_2px_0px_#000]';
+
+  const startBtnClass = isDark
+    ? 'w-full py-4 rounded-2xl bg-slate-100 hover:bg-white text-slate-900 font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg disabled:opacity-50'
+    : 'w-full py-4 rounded-2xl bg-[#86EF6A] hover:bg-[#A8F08D] text-black border-2 border-black font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-[4px_4px_0_#000] disabled:opacity-50';
+
+  // Dynamic Invite Link Construction using window origin (resolves local ports e.g. 5173 automatically)
+  const inviteLink = `${window.location.origin}/student-join?code=${roomCode}`;
+
   return (
-    <div className="relative min-h-screen bg-[#08080a] text-slate-100 p-8 flex flex-col justify-between select-none">
+    <div className={`relative min-h-screen p-8 flex flex-col justify-between transition-all duration-500 overflow-x-hidden ${bgClass}`} style={bgStyle}>
       
-      {/* glows */}
-      <div className="absolute top-10 left-10 w-[400px] h-[400px] rounded-full bg-wero-pink/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full bg-wero-blue/5 blur-[120px] pointer-events-none" />
+      {/* glows (Dark Theme Only) */}
+      {isDark && (
+        <>
+          <div className="absolute top-10 left-10 w-[400px] h-[400px] rounded-full bg-wero-pink/5 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full bg-wero-blue/5 blur-[120px] pointer-events-none" />
+        </>
+      )}
 
       {/* HEADER LOGO */}
-      <header className="flex justify-between items-center relative z-10 border-b border-white/5 pb-4">
+      <header className="flex justify-between items-center relative z-10 border-b border-white/5 pb-4 flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center font-black text-sm text-white">Q⚡️</div>
-          <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Host Console</span>
+          <div className={headerLogoClass}>Q⚡️</div>
+          <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>Host Console</span>
         </div>
 
-        <span className="text-xs font-black tracking-widest text-slate-500 uppercase">
-          Quiz: {selectedQuiz?.title || 'General Knowledge'}
-        </span>
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* LGT / DRK toggler pill */}
+          <div className={`border-2 rounded-full p-1.5 flex items-center gap-1.5 transition-all duration-300 ${
+            isDark ? 'bg-[#14121b] border-white shadow-[0_4px_0_#FFF]' : 'bg-white border-black shadow-[0_4px_0_#000]'
+          }`}>
+            <button 
+              onClick={() => setTheme('light')}
+              className={`px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all duration-200 ${
+                theme === 'light' 
+                  ? 'bg-[#ECEA8C] border border-black text-[#1d1c1c] shadow-[1px_1px_0_#000]' 
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              LGT
+            </button>
+            <button 
+              onClick={() => setTheme('dark')}
+              className={`px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all duration-200 ${
+                theme === 'dark' 
+                  ? 'bg-purple-600 border border-white/20 text-white shadow-[1px_1px_0_#fff]' 
+                  : 'text-slate-400 hover:text-slate-300'
+              }`}
+            >
+              DRK
+            </button>
+          </div>
+          <span className={`text-xs font-black tracking-widest uppercase ${isDark ? 'text-slate-500' : 'text-slate-700'}`}>
+            Quiz: {selectedQuiz?.title || 'General Knowledge'}
+          </span>
+        </div>
       </header>
 
       {/* 1. WAITING LOBBY COMPONENT */}
@@ -212,68 +259,65 @@ const LiveRoom = ({
               <span className="px-3.5 py-1 rounded-full bg-wero-pink/15 text-wero-pink font-bold border border-wero-pink/20 uppercase tracking-widest text-xs inline-block animate-pulse">
                 Join Lobby Now
               </span>
-              <h2 className="text-5xl md:text-6xl font-black font-sans tracking-tight text-white leading-none">
+              <h2 className={`text-5xl md:text-6xl font-black tracking-tight leading-none ${isDark ? 'text-white' : 'text-[#1d1c1c]'}`}>
                 ROOM CODE: <span className="text-wero-pink font-black">{roomCode}</span>
               </h2>
-              <p className="text-sm text-slate-400 max-w-sm">
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                 Share this room code with your students. They can access the live game arena instantly from their screens.
               </p>
 
-              <div className="p-4 rounded-xl border border-white/5 bg-white/[0.01] flex items-center justify-between gap-4">
-                <div className="truncate text-xs font-bold text-slate-400">
-                  Invite Link: <span className="text-wero-blue underline cursor-pointer">http://localhost:3000/join?code={roomCode}</span>
+              <div className={inviteLinkClass}>
+                <div className="truncate text-xs font-bold">
+                  Invite Link: <span className="text-wero-blue underline cursor-pointer">{inviteLink}</span>
                 </div>
                 <button 
-                  onClick={() => alert("Invite Link copied to clipboard!")}
-                  className="py-1.5 px-3 rounded-lg bg-slate-900 text-[10px] font-black uppercase text-white tracking-wider border border-white/10 hover:bg-slate-800"
+                  onClick={() => {
+                    navigator.clipboard.writeText(inviteLink);
+                    alert("Invite Link copied to clipboard!");
+                  }}
+                  className={inviteCopyBtnClass}
                 >
                   Copy
                 </button>
               </div>
             </div>
 
-            {/* MOCK QR CODE GRAPHIC (Right) */}
+            {/* LIVE-GENERATED QR CODE (Right) */}
             <div className="flex flex-col items-center justify-center">
-              <div className="p-5 rounded-3xl bg-white/5 border border-white/10 shadow-2xl relative group hover:scale-[1.02] transition duration-300">
-                {/* Simulated QR blocks canvas */}
-                <div className="w-[180px] h-[180px] bg-slate-900 rounded-2xl flex flex-wrap p-3 gap-1 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-wero-gradient opacity-15 pointer-events-none" />
-                  {Array.from({ length: 49 }).map((_, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-[22px] h-[22px] rounded ${
-                        i % 2 === 0 || i % 7 === 0 ? 'bg-slate-100 shadow-md' : 'bg-transparent'
-                      }`} 
-                    />
-                  ))}
-                  {/* Anchor block corners */}
-                  <div className="absolute top-3 left-3 w-10 h-10 border-[6px] border-white rounded bg-slate-900" />
-                  <div className="absolute top-3 right-3 w-10 h-10 border-[6px] border-white rounded bg-slate-900" />
-                  <div className="absolute bottom-3 left-3 w-10 h-10 border-[6px] border-white rounded bg-slate-900" />
-                </div>
+              <div className={`p-5 rounded-3xl border-2 transition duration-300 ${
+                isDark 
+                  ? 'bg-[#14121b] border-white/10 shadow-2xl hover:scale-[1.02]' 
+                  : 'bg-white border-black shadow-[6px_6px_0px_#000] hover:scale-[1.02]'
+              }`}>
+                {/* Dynamically requested live-scannable QR code matching color themes */}
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&color=${isDark ? 'ffffff' : '1d1c1c'}&bgcolor=${isDark ? '14121b' : 'ffffff'}&data=${encodeURIComponent(inviteLink)}`}
+                  alt="Join QR Code" 
+                  className="w-[180px] h-[180px] rounded-2xl block"
+                />
               </div>
-              <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase mt-4">Scan QR code to join lobby</span>
+              <span className={`text-[10px] font-black tracking-widest uppercase mt-4 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Scan QR code to join lobby</span>
             </div>
 
           </div>
 
           {/* LOBBY MEMBERS CONTAINER */}
-          <div className="w-full glass-card p-8 rounded-3xl border border-white/5 mb-8">
+          <div className={cardClass}>
             <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
-              <span className="text-xs font-black tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
+              <span className={`text-xs font-black tracking-wider uppercase flex items-center gap-1.5 ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                 <Users className="w-4 h-4 text-wero-blue" /> Contestants checked in
               </span>
               <span className="text-sm font-black text-wero-mint">{lobbyParticipants.length} Joined</span>
             </div>
 
             {lobbyParticipants.length === 0 ? (
-              <div className="text-center py-6 text-xs text-slate-500 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
+              <div className={`text-center py-6 text-xs font-semibold flex items-center justify-center gap-1.5 animate-pulse ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
                 <Users className="w-4 h-4" /> Waiting for student connections...
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[140px] overflow-y-auto">
                 {lobbyParticipants.map((p, idx) => (
-                  <div key={idx} className="p-3 rounded-xl border border-white/5 bg-white/[0.01] text-xs font-bold text-slate-200 flex items-center gap-2">
+                  <div key={idx} className={playerPillClass}>
                     <div className="w-2.5 h-2.5 rounded-full bg-wero-mint animate-pulse" />
                     <span className="truncate">{p.username}</span>
                   </div>
@@ -286,9 +330,9 @@ const LiveRoom = ({
           <button
             onClick={handleStartGame}
             disabled={lobbyParticipants.length === 0}
-            className="w-full py-4 rounded-2xl bg-slate-100 hover:bg-white text-slate-900 font-extrabold text-sm uppercase tracking-wider transition hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+            className={startBtnClass}
           >
-            <Play className="w-4 h-4 text-slate-900 fill-slate-900" />
+            <Play className={`w-4 h-4 fill-current`} />
             <span>START SYNCHRONIZED QUIZ 🚀</span>
           </button>
 
@@ -298,10 +342,10 @@ const LiveRoom = ({
       {/* 2. COUNTDOWN OVERLAY SCREEN */}
       {gameState === 'countdown' && (
         <main className="flex-1 flex flex-col justify-center items-center text-center z-10">
-          <div className="w-[180px] h-[180px] rounded-full border-4 border-wero-pink/40 flex items-center justify-center text-8xl font-black font-sans text-wero-pink shadow-[0_0_40px_rgba(255,107,139,0.15)] animate-pulse-slow">
+          <div className="w-[180px] h-[180px] rounded-full border-4 border-wero-pink/40 flex items-center justify-center text-8xl font-black text-wero-pink shadow-[0_0_40px_rgba(255,107,139,0.15)] animate-pulse-slow">
             {counter}
           </div>
-          <span className="text-xs font-black tracking-widest text-slate-500 uppercase mt-8 animate-pulse">Prepare response inputs</span>
+          <span className={`text-xs font-black tracking-widest uppercase mt-8 animate-pulse ${isDark ? 'text-slate-500' : 'text-slate-700'}`}>Prepare response inputs</span>
         </main>
       )}
 
@@ -309,8 +353,10 @@ const LiveRoom = ({
       {gameState === 'question' && activeQuestion && (
         <main className="flex-1 flex flex-col justify-center max-w-3xl mx-auto w-full z-10 py-12">
           
-          <div className="flex justify-between items-center mb-6">
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-slate-400 tracking-widest uppercase">
+          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+            <span className={`px-3 py-1 rounded-full border text-[9px] font-black tracking-widest uppercase ${
+              isDark ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-white border-2 border-black text-black shadow-[1.5px_1.5px_0_#000]'
+            }`}>
               Question {activeQuestion.index + 1} of {activeQuestion.total}
             </span>
 
@@ -319,13 +365,21 @@ const LiveRoom = ({
                 <>
                   <button
                     onClick={handleTogglePause}
-                    className="py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold border border-white/10 text-slate-300 transition"
+                    className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-white/20 border-white/10 text-slate-300' 
+                        : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000] hover:bg-slate-50'
+                    }`}
                   >
                     {timerPaused ? '▶️ Resume' : '⏸️ Pause'}
                   </button>
                   <button
                     onClick={handleEndQuiz}
-                    className="py-1.5 px-3 rounded-lg bg-red-950/40 hover:bg-red-900/40 text-xs font-bold border border-red-500/20 text-red-400 transition"
+                    className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition ${
+                      isDark 
+                        ? 'bg-red-950/40 hover:bg-red-900/40 border-red-500/20 text-red-400' 
+                        : 'bg-red-50 border-2 border-red-500 text-red-600 shadow-[2px_2px_0px_#000] hover:bg-red-100'
+                    }`}
                   >
                     🛑 End early
                   </button>
@@ -340,20 +394,20 @@ const LiveRoom = ({
             </div>
           </div>
 
-          <div className="glass-card p-10 rounded-3xl border border-white/5 space-y-8 shadow-2xl mb-8">
-            <h3 className="text-xl md:text-2xl font-black font-sans text-white leading-relaxed text-center">
+          <div className={cardClass}>
+            <h3 className={`text-xl md:text-2xl font-black text-center leading-relaxed ${isDark ? 'text-white' : 'text-black'}`}>
               {activeQuestion.questionText}
             </h3>
 
             {/* Submissions count progress bar */}
             <div className="space-y-2 border-t border-white/5 pt-6">
-              <div className="flex justify-between items-center text-xs font-bold text-slate-400">
+              <div className={`flex justify-between items-center text-xs font-bold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                 <span>Answers locked</span>
                 <span className="text-wero-mint">
                   {isMockRoom ? (lobbyParticipants.length - 1) : answersReceived} / {lobbyParticipants.length} submitted
                 </span>
               </div>
-              <div className="w-full bg-white/5 border border-white/5 rounded-full h-2.5 overflow-hidden">
+              <div className={`w-full border rounded-full h-2.5 overflow-hidden ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-200 border-black/10'}`}>
                 <div 
                   className="bg-wero-mint h-full rounded-full transition-all duration-300"
                   style={{ 
@@ -366,10 +420,16 @@ const LiveRoom = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             {activeQuestion.options.map((opt, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-white/[0.01] border border-white/5 text-xs text-slate-400 font-bold text-left flex items-center gap-2">
-                <span className="w-5 h-5 rounded bg-slate-950 flex items-center justify-center font-black text-[9px]">{String.fromCharCode(65 + idx)}</span>
+              <div key={idx} className={`p-4 rounded-2xl text-xs font-bold text-left flex items-center gap-2 border ${
+                isDark 
+                  ? 'bg-white/[0.01] border-white/5 text-slate-400' 
+                  : 'bg-white border-2 border-black text-black shadow-[3px_3px_0px_#000]'
+              }`}>
+                <span className={`w-5 h-5 rounded flex items-center justify-center font-black text-[9px] ${
+                  isDark ? 'bg-slate-950 text-white' : 'bg-slate-100 text-black border border-black'
+                }`}>{String.fromCharCode(65 + idx)}</span>
                 <span>{opt}</span>
               </div>
             ))}
@@ -382,13 +442,13 @@ const LiveRoom = ({
       {gameState === 'timeout' && activeQuestion && (
         <main className="flex-1 flex flex-col justify-center max-w-3xl mx-auto w-full z-10 py-12">
           
-          <div className="glass-card p-8 rounded-3xl border border-white/5 space-y-4 mb-8 text-center bg-wero-pink/[0.01]">
+          <div className={`${cardClass} text-center bg-wero-pink/[0.01]`}>
             <span className="px-2.5 py-0.5 rounded bg-wero-mint/15 text-wero-mint text-[9px] font-black tracking-widest uppercase border border-wero-mint/20">
               Correct Answer
             </span>
-            <h3 className="text-xl font-black text-white">{activeQuestion.correctAnswer}</h3>
+            <h3 className="text-xl font-black">{activeQuestion.correctAnswer}</h3>
             {activeQuestion.explanation && (
-              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed border-t border-white/5 pt-3">
+              <p className={`text-xs max-w-md mx-auto leading-relaxed border-t border-white/5 pt-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                 💡 {activeQuestion.explanation}
               </p>
             )}
@@ -413,12 +473,12 @@ const LiveRoom = ({
           )}
 
           {/* Standings table */}
-          <div className="glass-card p-6 rounded-3xl border border-white/5">
+          <div className={cardClass}>
             <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
-              <span className="text-xs font-black tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
+              <span className={`text-xs font-black tracking-wider uppercase flex items-center gap-1.5 ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                 <Award className="w-4 h-4 text-wero-pink" /> Standby Leaderboard
               </span>
-              <span className="text-[10px] font-black text-slate-500 tracking-widest uppercase">RoundStandings</span>
+              <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>Round Standings</span>
             </div>
 
             <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-1">
@@ -426,14 +486,20 @@ const LiveRoom = ({
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 5)
                 .map((p, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl border border-white/5 bg-white/[0.01] flex justify-between items-center">
+                  <div key={idx} className={`p-3.5 rounded-xl flex justify-between items-center border ${
+                    isDark 
+                      ? 'bg-white/[0.01] border-white/5' 
+                      : 'bg-slate-50 border-2 border-black shadow-[2px_2px_0px_#000]'
+                  }`}>
                     <div className="flex items-center gap-3">
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] ${
-                        idx === 0 ? 'bg-wero-pink text-slate-900 shadow-md' : 'bg-slate-950 text-slate-400'
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] border ${
+                        idx === 0 
+                          ? 'bg-wero-pink text-slate-900 border-black shadow-[1px_1px_0px_#000]' 
+                          : isDark ? 'bg-slate-950 border-white/10 text-slate-400' : 'bg-white border-black text-black'
                       }`}>
                         {idx + 1}
                       </span>
-                      <span className="text-xs font-bold text-white">{p.username || p.name}</span>
+                      <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-black'}`}>{p.username || p.name}</span>
                     </div>
                     <div className="text-right">
                       <span className="text-xs font-black text-wero-mint block">{p.score} pts</span>
@@ -452,7 +518,9 @@ const LiveRoom = ({
       )}
 
       {/* FOOTER */}
-      <footer className="py-4 border-t border-white/5 text-center text-[10px] font-black text-slate-600 uppercase tracking-wider relative z-10">
+      <footer className={`py-4 border-t border-white/5 text-center text-[10px] font-black uppercase tracking-wider relative z-10 ${
+        isDark ? 'text-slate-600' : 'text-slate-700'
+      }`}>
         QuizAI Real-Time Synchronization Socket Engine v1.0.0
       </footer>
 

@@ -1,6 +1,6 @@
 const https = require('https');
 const db = require('../config/db');
-const { PDFParse } = require('pdf-parse');
+const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const AdmZip = require('adm-zip');
 
@@ -14,8 +14,7 @@ const extractTextFromBuffer = async (buffer, filename) => {
     }
     
     if (ext === 'pdf') {
-      const parser = new PDFParse({ data: buffer });
-      const data = await parser.getText();
+      const data = await pdf(buffer);
       return data.text || '';
     }
     

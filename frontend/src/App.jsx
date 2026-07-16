@@ -49,7 +49,7 @@ const App = () => {
   const [aiQuestions, setAiQuestions] = useState([]);
   const [aiGenerationMeta, setAiGenerationMeta] = useState(null);
   const [quizToEdit, setQuizToEdit] = useState(null);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('light');
   const isDark = theme === 'dark';
 
   // Real-time WebSocket connection references
@@ -426,6 +426,9 @@ const App = () => {
               handleAIQuestionsLoad={handleAIQuestionsLoad}
               quizToEdit={quizToEdit}
               onClearEdit={() => setQuizToEdit(null)}
+              theme={theme}
+              setTheme={setTheme}
+              isDark={isDark}
             />
           )}
 
@@ -468,6 +471,9 @@ const App = () => {
               showRoundFeedback={showRoundFeedback}
               answersReceived={answersReceived}
               roundStats={roundStats}
+              theme={theme}
+              setTheme={setTheme}
+              isDark={isDark}
             />
           )}
 
@@ -492,6 +498,9 @@ const App = () => {
               setPage={setPage}
               studentName={studentName}
               socketFinishedResults={socketFinishedResults}
+              theme={theme}
+              setTheme={setTheme}
+              isDark={isDark}
             />
           )}
 
